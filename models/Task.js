@@ -71,19 +71,19 @@ TaskSchema.virtual('assignedByEmployee', {
 });
 
 // Middleware to validate due date is in the future when creating
-TaskSchema.pre('save', function(next) {
-  if (this.isNew) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset to midnight
-    const dueDate = new Date(this.dueDate);
-    dueDate.setHours(0, 0, 0, 0); // Also reset to midnight
+// TaskSchema.pre('save', function(next) {
+//   if (this.isNew) {
+//     const today = new Date();
+//     today.setHours(0, 0, 0, 0); // Reset to midnight
+//     const dueDate = new Date(this.dueDate);
+//     dueDate.setHours(0, 0, 0, 0); // Also reset to midnight
 
-    if (dueDate < today) {
-      return next(new Error('Due date cannot be in the past'));
-    }
-  }
-  next();
-});
+//     if (dueDate < today) {
+//       return next(new Error('Due date cannot be in the past'));
+//     }
+//   }
+//   next();
+// });
 
 
 module.exports = mongoose.model('Task', TaskSchema);
