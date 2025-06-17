@@ -70,4 +70,12 @@ TaskSchema.virtual('assignedByEmployee', {
   justOne: true
 });
 
+// Middleware to validate due date is in the future when creating
+TaskSchema.pre('save', function(next) {
+  if (this.isNew && this.dueDate <= new Date()) {
+    throw new Error('Due date must be in the future');
+  }
+  next();
+});
+
 module.exports = mongoose.model('Task', TaskSchema);
