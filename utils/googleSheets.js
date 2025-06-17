@@ -24,19 +24,31 @@ exports.updateAttendanceSheet = async (attendance) => {
       await sheet.loadHeaderRow();
     }
 
-    const formattedDate = new Date(attendance.date).toISOString().split('T')[0];
-    const currentMonth = new Date(attendance.date).getMonth();
-    const currentYear = new Date(attendance.date).getFullYear();
+    const formatDate = (date) => {
+      return new Date(date)
+        .toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' })
+        .replace(/\//g, '-'); // Outputs DD-MM-YYYY
+    };
 
     const formatTime = (date) => {
       if (!date) return 'N/A';
-      const d = new Date(date);
-      return d.toLocaleTimeString('en-US', {
+      return new Date(date).toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
-        hour12: true
+        hour12: true,
+        timeZone: 'Asia/Kolkata'
       });
     };
+
+    const formattedDate = formatDate(attendance.date);
+    const currentMonth = new Date(attendance.date).toLocaleString('en-US', {
+      month: 'numeric',
+      timeZone: 'Asia/Kolkata'
+    });
+    const currentYear = new Date(attendance.date).toLocaleString('en-US', {
+      year: 'numeric',
+      timeZone: 'Asia/Kolkata'
+    });
 
     const employeeId = attendance.employee?.employeeId || 'N/A';
     const employeeName = attendance.employee?.name || 'N/A';
@@ -46,10 +58,8 @@ exports.updateAttendanceSheet = async (attendance) => {
     // Check if a new month has started
     if (rows.length > 0) {
       const lastRow = rows[rows.length - 1];
-      const lastRowDate = new Date(lastRow.get('Date'));
-
-      const lastMonth = lastRowDate.getMonth();
-      const lastYear = lastRowDate.getFullYear();
+      const lastRowDateStr = lastRow.get('Date');
+      const [lastDay, lastMonth, lastYear] = lastRowDateStr.split('-');
 
       if (currentMonth !== lastMonth || currentYear !== lastYear) {
         // Insert an empty row to separate months
@@ -66,7 +76,7 @@ exports.updateAttendanceSheet = async (attendance) => {
     }
 
     const existingRow = rows.find(row => {
-      const rowDate = new Date(row.get('Date')).toISOString().split('T')[0];
+      const rowDate = row.get('Date');
       return row.get('Employee ID')?.trim() === employeeId &&
              rowDate === formattedDate;
     });
